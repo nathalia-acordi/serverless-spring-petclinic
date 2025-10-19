@@ -52,3 +52,7 @@ _site/
 
 # Ignore accidental Git folder copies (Windows file explorer copy)
 .git - Copia/
+
+# Serverless build artifacts (must not be committed)
+.serverless/
+/petclinic-serverless/iac/.serverless/
