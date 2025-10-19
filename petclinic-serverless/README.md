@@ -1,11 +1,12 @@
----
 # Petclinic Serverless Migration (Strangler Pattern)
 
 Arquitetura: Java 17 + Spring Boot 3 + Spring Cloud Function + AWS Lambda (função por endpoint) + API Gateway HTTP API + RDS Proxy (MySQL) + Powertools Java v2 + SnapStart.
 
+ 
 ## Objetivo
 Migrar endpoints REST do Spring Petclinic para funções independentes, permitindo evolução incremental (Strangler Pattern) e comparação de performance (SnapStart vs inicialização padrão e futura variante GraalVM).
 
+ 
 ## Estrutura
 
 ```text
@@ -18,6 +19,7 @@ petclinic-serverless/
 ```
 
 ## Matriz de Migração
+
 | Endpoint | Função | Status |
 |----------|--------|--------|
 | POST /owners | owners-create | Migrado |
@@ -41,27 +43,32 @@ mvn -q -DskipTests package
 npx serverless deploy --stage dev --region us-east-1
 ```
 
+ 
 ## Variáveis / Parâmetros (SSM ou Secrets Manager)
 
-- /petclinic/<stage>/db/jdbcUrl  (jdbc:mysql://<proxy-endpoint>:3306/petclinic)
-- /petclinic/<stage>/db/username
-- /petclinic/<stage>/db/password (SecureString)
+- /petclinic/`<stage>`/db/jdbcUrl  (jdbc:mysql://`<proxy-endpoint>`:3306/petclinic)
+- /petclinic/`<stage>`/db/username
+- /petclinic/`<stage>`/db/password (SecureString)
 
+ 
 ## SnapStart
 - `versionFunctions: true` no provider.
 - Overrides CloudFormation adicionam `SnapStart: ApplyOn=PublishedVersions`.
 - Evite materializar conexões no static init; DataSource inicializa lazily.
- - Passos para validar Logical IDs:
-  1. `npx serverless package --stage dev`
-  2. Abrir `.serverless/cloudformation-template-update-stack.json`
-  3. Localizar recursos `AWS::Lambda::Function` (Owners*) e confirmar que nomes batem com:
-    - `OwnersCreateLambdaFunction`
-    - `OwnersListLambdaFunction`
-    - `OwnersGetLambdaFunction`
-    - `OwnersUpdateLambdaFunction`
-    - `OwnersDeleteLambdaFunction`
-  4. Ajustar caso divergente.
 
+Passos para validar Logical IDs:
+
+1. `npx serverless package --stage dev`
+2. Abrir `.serverless/cloudformation-template-update-stack.json`
+3. Localizar recursos `AWS::Lambda::Function` (Owners*) e confirmar que nomes batem com:
+   - `OwnersCreateLambdaFunction`
+   - `OwnersListLambdaFunction`
+   - `OwnersGetLambdaFunction`
+   - `OwnersUpdateLambdaFunction`
+   - `OwnersDeleteLambdaFunction`
+4. Ajustar caso divergente.
+
+ 
 ## RDS Proxy
 Placeholders em `serverless.yml`:
 - `<DB_INSTANCE_ID>`
@@ -69,6 +76,7 @@ Placeholders em `serverless.yml`:
 - `<PRIVATE_SUBNET_ID_1|2>`
 - `<LAMBDA_SG_ID>` / `<DB_PROXY_SG_ID>`
 
+ 
 ## Observabilidade (Powertools)
 Anotações usadas: `@Logging`, `@Tracing`, `@Metrics(captureColdStart = true, namespace = "Petclinic")`.
 Variáveis recomendadas:
@@ -78,11 +86,12 @@ POWERTOOLS_LOG_LEVEL=INFO
 POWERTOOLS_LOGGER_LOG_EVENT=true
 ```
 
+ 
 ## Métricas sugeridas
 - OwnersCreatedCount (Counter)
 - OwnerLatency (Timer p50/p95 em CloudWatch via EMF)
 - ColdStart (automático do Powertools com captureColdStart)
- - OwnersListedCount / OwnersGetCount / OwnersUpdatedCount / OwnersDeletedCount
+  - OwnersListedCount / OwnersGetCount / OwnersUpdatedCount / OwnersDeletedCount
 
 ### Métricas e Latência (Detalhado)
 `MetricsSupport` adiciona dimensões: `Operation`, `Endpoint`, `Stage`. Timers criados:
