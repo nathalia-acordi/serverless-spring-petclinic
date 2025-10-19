@@ -1,0 +1,120 @@
+{
+  "widgets": [
+    {
+      "type": "metric",
+      "x": 0, "y": 0, "width": 12, "height": 6,
+      "properties": {
+        "region": "sa-east-1",
+        "title": "Create - Latência (p50/p90/p99)",
+        "view": "timeSeries",
+        "stacked": false,
+        "stat": "p50",
+        "period": 60,
+        "metrics": [
+          [ "Petclinic", "OwnersCreateLatencyMs", "Service", "petclinic", "Operation", "Owners", "Endpoint", "POST_/owners", "Stage", "dev", { "stat": "p50" } ],
+          [ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", { "stat": "p90" } ],
+          [ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", { "stat": "p99" } ]
+        ],
+        "yAxis": { "left": { "label": "ms" } }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12, "y": 0, "width": 12, "height": 6,
+      "properties": {
+        "region": "sa-east-1",
+        "title": "Create - Contadores (sucesso x conflitos)",
+        "view": "timeSeries",
+        "stat": "Sum",
+        "period": 60,
+        "metrics": [
+          [ "Petclinic", "OwnersCreatedCount", "Service", "petclinic", "Operation", "Owners", "Endpoint", "POST_/owners", "Stage", "dev" ],
+          [ ".", "OwnersCreateConflictCount", ".", ".", ".", ".", ".", ".", ".", "." ]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0, "y": 6, "width": 12, "height": 6,
+      "properties": {
+        "region": "sa-east-1",
+        "title": "Update - Latência (p50/p90/p99)",
+        "view": "timeSeries",
+        "period": 60,
+        "metrics": [
+          [ "Petclinic", "OwnersUpdateLatencyMs", "Service", "petclinic", "Operation", "Owners", "Endpoint", "PUT_/owners/{id}", "Stage", "dev", { "stat": "p50" } ],
+          [ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", { "stat": "p90" } ],
+          [ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", { "stat": "p99" } ]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12, "y": 6, "width": 12, "height": 6,
+      "properties": {
+        "region": "sa-east-1",
+        "title": "Update - Contadores (200/409/404/400/500)",
+        "view": "timeSeries",
+        "stat": "Sum",
+        "period": 60,
+        "metrics": [
+          [ "Petclinic", "OwnersUpdateSuccessCount", "Service", "petclinic", "Operation", "Owners", "Endpoint", "PUT_/owners/{id}", "Stage", "dev" ],
+            [ ".", "OwnersUpdateConflictCount", ".", ".", ".", ".", ".", ".", ".", "." ],
+            [ ".", "OwnersUpdateNotFoundCount", ".", ".", ".", ".", ".", ".", ".", "." ],
+            [ ".", "OwnersUpdateBadRequestCount", ".", ".", ".", ".", ".", ".", ".", "." ],
+            [ ".", "OwnersUpdateErrorCount", ".", ".", ".", ".", ".", ".", ".", "." ]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0, "y": 12, "width": 12, "height": 6,
+      "properties": {
+        "region": "sa-east-1",
+        "title": "GETs - Latência (id e lista)",
+        "view": "timeSeries",
+        "period": 60,
+        "metrics": [
+          [ "Petclinic", "OwnersGetLatencyMs",  "Service", "petclinic", "Operation", "Owners", "Endpoint", "GET_/owners/{id}", "Stage", "dev", { "stat": "p90" } ],
+          [ ".",         "OwnersListLatencyMs", ".",       ".",         ".",         ".",      ".",         "GET_/owners",     ".",     ".",   { "stat": "p90" } ]
+        ]
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12, "y": 12, "width": 12, "height": 6,
+      "properties": {
+        "region": "sa-east-1",
+        "title": "DELETE - Latência e Contadores",
+        "view": "timeSeries",
+        "period": 60,
+        "metrics": [
+          [ "Petclinic", "OwnersDeleteLatencyMs", "Service", "petclinic", "Operation", "Owners", "Endpoint", "DELETE_/owners/{id}", "Stage", "dev", { "stat": "p90" } ],
+          [ ".", "OwnersDeleteSuccessCount", ".", ".", ".", ".", ".", ".", ".", ".", { "stat": "Sum", "yAxis": "right" } ],
+          [ ".", "OwnersDeleteNotFoundCount", ".", ".", ".", ".", ".", ".", ".", ".", { "stat": "Sum", "yAxis": "right" } ]
+        ],
+        "yAxis": { "left": { "label": "ms" }, "right": { "label": "count" } }
+      }
+    },
+    {
+      "type": "log",
+      "x": 0, "y": 18, "width": 24, "height": 7,
+      "properties": {
+        "region": "sa-east-1",
+        "title": "Logs (Create/Update últimos 60 min)",
+        "query": "SOURCE '/aws/lambda/petclinic-serverless-dev-owners-create' '/aws/lambda/petclinic-serverless-dev-owners-update'\n| filter @message like /OwnersCreate|OwnersUpdate/\n| fields @timestamp, @logStream, @message\n| sort @timestamp desc\n| limit 50",
+        "view": "table"
+      }
+    },
+    {
+      "type": "log",
+      "x": 0, "y": 25, "width": 24, "height": 7,
+      "properties": {
+        "region": "sa-east-1",
+        "title": "Init Duration Compare (Create/Update)",
+        "query": "SOURCE '/aws/lambda/petclinic-serverless-dev-owners-create' '/aws/lambda/petclinic-serverless-dev-owners-update'\n| filter @message like /Init Duration/\n| parse @message /Init Duration: (?<initMs>[0-9.]+) ms/\n| stats avg(initMs) as avgInitMs, pct(initMs,50) as p50, pct(initMs,90) as p90, pct(initMs,99) as p99 by @logGroup\n| sort avgInitMs desc",
+        "view": "table"
+      }
+    }
+  ]
+}

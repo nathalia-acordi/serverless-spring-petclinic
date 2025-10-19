@@ -1,0 +1,16 @@
+# Warm steady load: moderate sustained rate to capture p50/p95 once caches/JIT warmed
+config:
+  target: "https://<API_GATEWAY_BASE>"
+  phases:
+    - duration: 300  # 5 minutes
+      arrivalRate: 10
+  defaults:
+    headers:
+      Content-Type: application/json
+scenarios:
+  - name: warm-get
+    flow:
+      - get:
+          url: /owners
+      - get:
+          url: /owners/1

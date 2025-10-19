@@ -1,0 +1,22 @@
+# Cold start scenario: very low rate to observe InitDuration differences (with/without SnapStart)
+config:
+  target: "https://<API_GATEWAY_BASE>"
+  phases:
+    - duration: 600   # 10 minutes
+      arrivalRate: 1  # 1 request per minute approx (Artillery schedules evenly)
+  defaults:
+    headers:
+      Content-Type: application/json
+scenarios:
+  - name: cold-mix
+    flow:
+      - post:
+          url: /owners
+          json:
+            firstName: "Cold"
+            lastName: "Start"
+            address: "A"
+            city: "C"
+            telephone: "1000"
+      - get:
+          url: /owners

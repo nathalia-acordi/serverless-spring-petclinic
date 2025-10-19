@@ -1,0 +1,23 @@
+# Burst / stress scenario: ramp to high RPS to test autoscaling & throttles
+config:
+  target: "https://<API_GATEWAY_BASE>"
+  phases:
+    - duration: 60
+      arrivalRate: 10
+      rampTo: 100  # linear ramp to 100 rps
+  defaults:
+    headers:
+      Content-Type: application/json
+scenarios:
+  - name: burst-create-get
+    flow:
+      - post:
+          url: /owners
+          json:
+            firstName: "Peak"
+            lastName: "Burst"
+            address: "Street"
+            city: "Load"
+            telephone: "2000"
+      - get:
+          url: /owners

@@ -1,0 +1,121 @@
+service: petclinic-serverless
+configValidationMode: warn
+frameworkVersion: '4'
+
+provider:
+  name: aws
+  runtime: java17
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'sa-east-1'}
+  profile: ${env:SLS_AWS_PROFILE, 'petclinic'}
+  memorySize: 512
+  timeout: 15
+  versionFunctions: true             # Necessário para publicar versões e habilitar SnapStart
+  environment:
+    POWERTOOLS_SERVICE_NAME: petclinic
+    POWERTOOLS_METRICS_NAMESPACE: Petclinic
+    POWERTOOLS_LOGGER_LOG_EVENT: true
+    LOG_LEVEL: INFO
+    DB_SECRET_ARN: ${ssm:/petclinic/${self:provider.stage}/db/secret-arn}
+    DB_PROXY_ENDPOINT: ${ssm:/petclinic/${self:provider.stage}/db/proxy-endpoint}
+    DB_NAME: petclinic
+  vpc:
+    securityGroupIds:
+      - sg-0ef0c6b57f1ff926c
+    subnetIds:
+      - subnet-088a4cc9e6a86fe74
+      - subnet-08d551fc4c79a039e
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - secretsmanager:GetSecretValue
+          Resource:
+            - arn:aws:secretsmanager:sa-east-1:151509777978:secret:petclinic/dev/mysql-*
+
+package:
+  individually: true
+  patterns:
+    - '!**/*.md'
+    - '!**/test/**'
+
+functions:
+  owners-create:
+    handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+    description: Create Owner (POST /owners)
+    package:
+      artifact: ../functions/owners-create/target/owners-create.jar
+    snapStart: true
+    environment:
+      MAIN_CLASS: com.example.petclinic.functions.owners.create.OwnersCreateConfig
+      SPRING_CLOUD_FUNCTION_DEFINITION: ownersCreate
+    events:
+      - httpApi:
+          path: /owners
+          method: post
+
+  owners-list:
+    handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+    description: List Owners (GET /owners)
+    package:
+      artifact: ../functions/owners-list/target/owners-list.jar
+    snapStart: true
+    environment:
+      MAIN_CLASS: com.example.petclinic.functions.owners.list.OwnersListConfig
+      SPRING_CLOUD_FUNCTION_DEFINITION: ownersList
+    events:
+      - httpApi:
+          path: /owners
+          method: get
+
+  owners-get:
+    handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+    description: Get Owner (GET /owners/{id})
+    package:
+      artifact: ../functions/owners-get/target/owners-get.jar
+    snapStart: true
+    environment:
+      MAIN_CLASS: com.example.petclinic.functions.owners.get.OwnersGetConfig
+      SPRING_CLOUD_FUNCTION_DEFINITION: ownersGet
+    events:
+      - httpApi:
+          path: /owners/{id}
+          method: get
+
+  owners-update:
+    handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+    description: Update Owner (PUT /owners/{id})
+    package:
+      artifact: ../functions/owners-update/target/owners-update.jar
+    snapStart: true
+    environment:
+      MAIN_CLASS: com.example.petclinic.functions.owners.update.OwnersUpdateConfig
+      SPRING_CLOUD_FUNCTION_DEFINITION: ownersUpdate
+    events:
+      - httpApi:
+          path: /owners/{id}
+          method: put
+
+  owners-delete:
+    handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+    description: Delete Owner (DELETE /owners/{id})
+    package:
+      artifact: ../functions/owners-delete/target/owners-delete.jar
+    snapStart: true
+    environment:
+      MAIN_CLASS: com.example.petclinic.functions.owners.delete.OwnersDeleteConfig
+      SPRING_CLOUD_FUNCTION_DEFINITION: ownersDelete
+    events:
+      - httpApi:
+          path: /owners/{id}
+          method: delete
+
+resources:
+  # 1) CloudWatch Dashboard
+  - ${file(./cloudwatch-dash.yml)}
+
+  # 2) Apenas Outputs informativos (sem SnapStart no modo debug)
+  - Outputs:
+      ProxyEndpointNote:
+        Value: "RDS Proxy criado via CLI; endpoint no SSM /petclinic/dev/db/proxy-endpoint"

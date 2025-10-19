@@ -1,0 +1,84 @@
+# CloudWatch Dashboard definition for Petclinic Serverless (Owners phase)
+# Referenced from serverless.yml via ${file(./cloudwatch-dash.yml)}
+# Adjust region/stage dynamically at deploy time; dashboard body is JSON string.
+Resources:
+  PetclinicDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: !Sub Petclinic-${AWS::Region}-${self:provider.stage}
+      DashboardBody: !Sub |
+        {
+          "widgets": [
+            {
+              "type": "text",
+              "x": 0, "y": 0, "width": 24, "height": 2,
+              "properties": {"markdown": "# Petclinic Owners Dashboard (Stage: ${self:provider.stage})\nCustom + Native metrics"}
+            },
+            {"type":"metric","x":0,"y":2,"width":8,"height":6,
+              "properties": {"title":"Owners Counters","metrics": [
+                ["Petclinic","OwnersCreatedCount","Operation","Owners","Stage","${self:provider.stage}"],
+                ["Petclinic","OwnersListedCount","Operation","Owners","Stage","${self:provider.stage}"],
+                ["Petclinic","OwnersGetCount","Operation","Owners","Stage","${self:provider.stage}"],
+                ["Petclinic","OwnersUpdatedCount","Operation","Owners","Stage","${self:provider.stage}"],
+                ["Petclinic","OwnersDeletedCount","Operation","Owners","Stage","${self:provider.stage}"]
+              ],"view":"timeSeries","stacked":false,"region":"${AWS::Region}"}}
+            ,{"type":"metric","x":8,"y":2,"width":8,"height":6,
+              "properties": {"title":"Handler Latency (ms)","metrics": [
+                ["Petclinic","OwnersCreateLatencyMs","Operation","Owners","Stage","${self:provider.stage}"],
+                ["Petclinic","OwnersListLatencyMs","Operation","Owners","Stage","${self:provider.stage}"],
+                ["Petclinic","OwnersGetLatencyMs","Operation","Owners","Stage","${self:provider.stage}"],
+                ["Petclinic","OwnersUpdateLatencyMs","Operation","Owners","Stage","${self:provider.stage}"],
+                ["Petclinic","OwnersDeleteLatencyMs","Operation","Owners","Stage","${self:provider.stage}"]
+              ],"view":"timeSeries","stacked":false,"region":"${AWS::Region}"}}
+            ,{"type":"metric","x":16,"y":2,"width":8,"height":6,
+              "properties": {"title":"Service Latency (ms)","metrics": [
+                ["Petclinic","OwnersServiceCreateLatencyMs","Operation","Owners","Stage","${self:provider.stage}"],
+                ["Petclinic","OwnersServiceListLatencyMs","Operation","Owners","Stage","${self:provider.stage}"],
+                ["Petclinic","OwnersServiceGetLatencyMs","Operation","Owners","Stage","${self:provider.stage}"],
+                ["Petclinic","OwnersServiceUpdateLatencyMs","Operation","Owners","Stage","${self:provider.stage}"],
+                ["Petclinic","OwnersServiceDeleteLatencyMs","Operation","Owners","Stage","${self:provider.stage}"]
+              ],"view":"timeSeries","stacked":false,"region":"${AWS::Region}"}}
+            ,{"type":"metric","x":0,"y":8,"width":12,"height":6,
+              "properties": {"title":"Lambda Duration & Init","metrics": [
+                ["AWS/Lambda","Duration","FunctionName","${self:service}-${self:provider.stage}-owners-create"],
+                ["AWS/Lambda","Duration","FunctionName","${self:service}-${self:provider.stage}-owners-list"],
+                ["AWS/Lambda","Duration","FunctionName","${self:service}-${self:provider.stage}-owners-get"],
+                ["AWS/Lambda","Duration","FunctionName","${self:service}-${self:provider.stage}-owners-update"],
+                ["AWS/Lambda","Duration","FunctionName","${self:service}-${self:provider.stage}-owners-delete"],
+                ["AWS/Lambda","InitDuration","FunctionName","${self:service}-${self:provider.stage}-owners-create"],
+                ["AWS/Lambda","InitDuration","FunctionName","${self:service}-${self:provider.stage}-owners-list"],
+                ["AWS/Lambda","InitDuration","FunctionName","${self:service}-${self:provider.stage}-owners-get"],
+                ["AWS/Lambda","InitDuration","FunctionName","${self:service}-${self:provider.stage}-owners-update"],
+                ["AWS/Lambda","InitDuration","FunctionName","${self:service}-${self:provider.stage}-owners-delete"]
+              ],"view":"timeSeries","stacked":false,"region":"${AWS::Region}"}}
+            ,{"type":"metric","x":12,"y":8,"width":12,"height":6,
+              "properties": {"title":"Invocations & Errors","metrics": [
+                ["AWS/Lambda","Invocations","FunctionName","${self:service}-${self:provider.stage}-owners-create"],
+                ["AWS/Lambda","Errors","FunctionName","${self:service}-${self:provider.stage}-owners-create"],
+                ["AWS/Lambda","Invocations","FunctionName","${self:service}-${self:provider.stage}-owners-list"],
+                ["AWS/Lambda","Errors","FunctionName","${self:service}-${self:provider.stage}-owners-list"],
+                ["AWS/Lambda","Invocations","FunctionName","${self:service}-${self:provider.stage}-owners-get"],
+                ["AWS/Lambda","Errors","FunctionName","${self:service}-${self:provider.stage}-owners-get"],
+                ["AWS/Lambda","Invocations","FunctionName","${self:service}-${self:provider.stage}-owners-update"],
+                ["AWS/Lambda","Errors","FunctionName","${self:service}-${self:provider.stage}-owners-update"],
+                ["AWS/Lambda","Invocations","FunctionName","${self:service}-${self:provider.stage}-owners-delete"],
+                ["AWS/Lambda","Errors","FunctionName","${self:service}-${self:provider.stage}-owners-delete"]
+              ],"view":"timeSeries","stacked":false,"region":"${AWS::Region}"}}
+            ,{"type":"metric","x":0,"y":14,"width":12,"height":6,
+              "properties": {"title":"Throttles","metrics": [
+                ["AWS/Lambda","Throttles","FunctionName","${self:service}-${self:provider.stage}-owners-create"],
+                ["AWS/Lambda","Throttles","FunctionName","${self:service}-${self:provider.stage}-owners-list"],
+                ["AWS/Lambda","Throttles","FunctionName","${self:service}-${self:provider.stage}-owners-get"],
+                ["AWS/Lambda","Throttles","FunctionName","${self:service}-${self:provider.stage}-owners-update"],
+                ["AWS/Lambda","Throttles","FunctionName","${self:service}-${self:provider.stage}-owners-delete"]
+              ],"view":"timeSeries","stacked":false,"region":"${AWS::Region}"}}
+            ,{"type":"metric","x":12,"y":14,"width":12,"height":6,
+              "properties": {"title":"X-Ray (Traces) NOTE","metrics": [
+                ["AWS/XRay","Traces","ServiceName","${self:service}-${self:provider.stage}-owners-create"],
+                ["AWS/XRay","Traces","ServiceName","${self:service}-${self:provider.stage}-owners-list"],
+                ["AWS/XRay","Traces","ServiceName","${self:service}-${self:provider.stage}-owners-get"],
+                ["AWS/XRay","Traces","ServiceName","${self:service}-${self:provider.stage}-owners-update"],
+                ["AWS/XRay","Traces","ServiceName","${self:service}-${self:provider.stage}-owners-delete"]
+              ],"view":"timeSeries","stacked":false,"region":"${AWS::Region}"}}
+          ]
+        }

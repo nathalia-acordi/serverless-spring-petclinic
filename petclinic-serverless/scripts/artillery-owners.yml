@@ -1,0 +1,23 @@
+# Artillery basic load test for Owners endpoints
+config:
+  target: "https://<API_GATEWAY_BASE>"  # replace with deployed HTTP API base URL
+  phases:
+    - duration: 60
+      arrivalRate: 2   # low steady to capture p50/p95 and cold starts
+      name: warm-phase
+  defaults:
+    headers:
+      Content-Type: application/json
+scenarios:
+  - name: create-and-list-owners
+    flow:
+      - post:
+          url: /owners
+          json:
+            firstName: "Ana"
+            lastName: "Silva"
+            address: "Rua 1"
+            city: "SP"
+            telephone: "551199999" 
+      - get:
+          url: /owners
