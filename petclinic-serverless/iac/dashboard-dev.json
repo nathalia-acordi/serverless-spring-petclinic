@@ -11,9 +11,9 @@
         "stat": "p50",
         "period": 60,
         "metrics": [
-          [ "Petclinic", "OwnersCreateLatencyMs", "Service", "petclinic", "Operation", "Owners", "Endpoint", "POST_/owners", "Stage", "dev", { "stat": "p50" } ],
-          [ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", { "stat": "p90" } ],
-          [ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", { "stat": "p99" } ]
+          [ "Petclinic", "OwnersCreateLatencyMs", "Operation", "Owners", "Endpoint", "POST_/owners", "Stage", "dev", { "stat": "p50" } ],
+          [ "Petclinic", "OwnersCreateLatencyMs", "Operation", "Owners", "Endpoint", "POST_/owners", "Stage", "dev", { "stat": "p90" } ],
+          [ "Petclinic", "OwnersCreateLatencyMs", "Operation", "Owners", "Endpoint", "POST_/owners", "Stage", "dev", { "stat": "p99" } ]
         ],
         "yAxis": { "left": { "label": "ms" } }
       }
@@ -28,8 +28,8 @@
         "stat": "Sum",
         "period": 60,
         "metrics": [
-          [ "Petclinic", "OwnersCreatedCount", "Service", "petclinic", "Operation", "Owners", "Endpoint", "POST_/owners", "Stage", "dev" ],
-          [ ".", "OwnersCreateConflictCount", ".", ".", ".", ".", ".", ".", ".", "." ]
+          [ "Petclinic", "OwnersCreatedCount", "Operation", "Owners", "Endpoint", "POST_/owners", "Stage", "dev" ],
+          [ "Petclinic", "OwnersCreateConflictCount", "Operation", "Owners", "Endpoint", "POST_/owners", "Stage", "dev" ]
         ]
       }
     },
@@ -42,9 +42,9 @@
         "view": "timeSeries",
         "period": 60,
         "metrics": [
-          [ "Petclinic", "OwnersUpdateLatencyMs", "Service", "petclinic", "Operation", "Owners", "Endpoint", "PUT_/owners/{id}", "Stage", "dev", { "stat": "p50" } ],
-          [ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", { "stat": "p90" } ],
-          [ ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", { "stat": "p99" } ]
+          [ "Petclinic", "OwnersUpdateLatencyMs", "Operation", "Owners", "Endpoint", "PUT_/owners/{id}", "Stage", "dev", { "stat": "p50" } ],
+          [ "Petclinic", "OwnersUpdateLatencyMs", "Operation", "Owners", "Endpoint", "PUT_/owners/{id}", "Stage", "dev", { "stat": "p90" } ],
+          [ "Petclinic", "OwnersUpdateLatencyMs", "Operation", "Owners", "Endpoint", "PUT_/owners/{id}", "Stage", "dev", { "stat": "p99" } ]
         ]
       }
     },
@@ -58,11 +58,11 @@
         "stat": "Sum",
         "period": 60,
         "metrics": [
-          [ "Petclinic", "OwnersUpdateSuccessCount", "Service", "petclinic", "Operation", "Owners", "Endpoint", "PUT_/owners/{id}", "Stage", "dev" ],
-            [ ".", "OwnersUpdateConflictCount", ".", ".", ".", ".", ".", ".", ".", "." ],
-            [ ".", "OwnersUpdateNotFoundCount", ".", ".", ".", ".", ".", ".", ".", "." ],
-            [ ".", "OwnersUpdateBadRequestCount", ".", ".", ".", ".", ".", ".", ".", "." ],
-            [ ".", "OwnersUpdateErrorCount", ".", ".", ".", ".", ".", ".", ".", "." ]
+          [ "Petclinic", "OwnersUpdateSuccessCount",     "Operation", "Owners", "Endpoint", "PUT_/owners/{id}", "Stage", "dev" ],
+          [ "Petclinic", "OwnersUpdateConflictCount",    "Operation", "Owners", "Endpoint", "PUT_/owners/{id}", "Stage", "dev" ],
+          [ "Petclinic", "OwnersUpdateNotFoundCount",    "Operation", "Owners", "Endpoint", "PUT_/owners/{id}", "Stage", "dev" ],
+          [ "Petclinic", "OwnersUpdateBadRequestCount",  "Operation", "Owners", "Endpoint", "PUT_/owners/{id}", "Stage", "dev" ],
+          [ "Petclinic", "OwnersUpdateErrorCount",       "Operation", "Owners", "Endpoint", "PUT_/owners/{id}", "Stage", "dev" ]
         ]
       }
     },
@@ -75,8 +75,8 @@
         "view": "timeSeries",
         "period": 60,
         "metrics": [
-          [ "Petclinic", "OwnersGetLatencyMs",  "Service", "petclinic", "Operation", "Owners", "Endpoint", "GET_/owners/{id}", "Stage", "dev", { "stat": "p90" } ],
-          [ ".",         "OwnersListLatencyMs", ".",       ".",         ".",         ".",      ".",         "GET_/owners",     ".",     ".",   { "stat": "p90" } ]
+          [ "Petclinic", "OwnersGetLatencyMs",  "Operation", "Owners", "Endpoint", "GET_/owners/{id}", "Stage", "dev", { "stat": "p90" } ],
+          [ "Petclinic", "OwnersListLatencyMs", "Operation", "Owners", "Endpoint", "GET_/owners",     "Stage", "dev", { "stat": "p90" } ]
         ]
       }
     },
@@ -89,9 +89,9 @@
         "view": "timeSeries",
         "period": 60,
         "metrics": [
-          [ "Petclinic", "OwnersDeleteLatencyMs", "Service", "petclinic", "Operation", "Owners", "Endpoint", "DELETE_/owners/{id}", "Stage", "dev", { "stat": "p90" } ],
-          [ ".", "OwnersDeleteSuccessCount", ".", ".", ".", ".", ".", ".", ".", ".", { "stat": "Sum", "yAxis": "right" } ],
-          [ ".", "OwnersDeleteNotFoundCount", ".", ".", ".", ".", ".", ".", ".", ".", { "stat": "Sum", "yAxis": "right" } ]
+          [ "Petclinic", "OwnersDeleteLatencyMs",     "Operation", "Owners", "Endpoint", "DELETE_/owners/{id}", "Stage", "dev", { "stat": "p90" } ],
+          [ "Petclinic", "OwnersDeleteSuccessCount",  "Operation", "Owners", "Endpoint", "DELETE_/owners/{id}", "Stage", "dev", { "stat": "Sum", "yAxis": "right" } ],
+          [ "Petclinic", "OwnersDeleteNotFoundCount", "Operation", "Owners", "Endpoint", "DELETE_/owners/{id}", "Stage", "dev", { "stat": "Sum", "yAxis": "right" } ]
         ],
         "yAxis": { "left": { "label": "ms" }, "right": { "label": "count" } }
       }
