@@ -1,165 +1,311 @@
-# Spring PetClinic Sample Application [![Build Status](https://github.com/spring-projects/spring-petclinic/actions/workflows/maven-build.yml/badge.svg)](https://github.com/spring-projects/spring-petclinic/actions/workflows/maven-build.yml)[![Build Status](https://github.com/spring-projects/spring-petclinic/actions/workflows/gradle-build.yml/badge.svg)](https://github.com/spring-projects/spring-petclinic/actions/workflows/gradle-build.yml)
+# 🐾 Spring PetClinic Serverless
+[![AWS Lambda](https://img.shields.io/badge/AWS-Lambda-orange.svg)](https://aws.amazon.com/lambda/)
+[![Spring Cloud Function](https://img.shields.io/badge/Spring-Cloud%20Function-green.svg)](https://spring.io/projects/spring-cloud-function)
+[![Java](https://img.shields.io/badge/Java-17-red.svg)](https://openjdk.java.net/)
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/spring-projects/spring-petclinic) [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=7517918)
+> Uma reimplementação moderna do clássico **Spring PetClinic** utilizando arquitetura **Serverless** baseada em funções AWS Lambda, demonstrando estratégias práticas para decomposição de sistemas monolíticos.
 
-## Understanding the Spring Petclinic application with a few diagrams
+Este projeto é resultado de uma pesquisa acadêmica de Trabalho de Conclusão de Curso (TCC) que investigou a viabilidade técnica, os padrões arquiteturais e os trade-offs envolvidos na migração de aplicações monolíticas tradicionais para o paradigma **Function-as-a-Service (FaaS)**.
 
-[See the presentation here](https://speakerdeck.com/michaelisvy/spring-petclinic-sample-application)
+---
 
-## Run Petclinic locally
+## 📋 Sobre o Projeto
 
-Spring Petclinic is a [Spring Boot](https://spring.io/guides/gs/spring-boot) application built using [Maven](https://spring.io/guides/gs/maven/) or [Gradle](https://spring.io/guides/gs/gradle/). You can build a jar file and run it from the command line (it should work just as well with Java 17 or newer):
+O **PetClinic Serverless** é uma refatoração progressiva e fundamentada do domínio **Owners** do sistema [Spring PetClinic](https://github.com/spring-projects/spring-petclinic), transformando operações CRUD monolíticas em **funções AWS Lambda independentes**, escaláveis e resilientes.
 
-```bash
-git clone https://github.com/spring-projects/spring-petclinic.git
-cd spring-petclinic
-./mvnw package
-java -jar target/*.jar
+### 🎯 Objetivos
+
+- Demonstrar a aplicação prática do **Strangler Pattern** para migração incremental
+- Validar a decomposição orientada a domínio baseada em **Domain-Driven Design (DDD)**
+- Avaliar desempenho, escalabilidade e resiliência comparando arquiteturas monolítica vs. serverless
+- Documentar um guia técnico replicável para modernização de sistemas legados
+
+### 🔬 Contexto Acadêmico
+
+Este repositório implementa a metodologia proposta no TCC **"Estratégias para a Decomposição de Monólitos em Funções Serverless"**, desenvolvido no curso de Engenharia de Software da UDESC/CEAVI (2025).
+
+---
+
+## 🏗️ Arquitetura
+
+### Visão Geral
+
+A solução implementa uma **arquitetura híbrida de transição**, onde funções serverless coexistem temporariamente com o monólito original por meio de roteamento inteligente no API Gateway:
+
+```
+┌─────────────────┐
+│   API Gateway   │ ← Ponto único de entrada (Strangler Façade)
+└────────┬────────┘
+         │
+    ┌────┴────┐
+    │         │
+┌───▼──┐  ┌──▼────────────┐
+│ Lambda│  │ Monólito      │
+│ (NEW) │  │ (Legado)      │
+└───┬───┘  └──┬────────────┘
+    │         │
+    └────┬────┘
+         │
+    ┌────▼────────┐
+    │  RDS Proxy  │ ← Pool de conexões compartilhado (Bulkhead Pattern)
+    └─────────────┘
+         │
+    ┌────▼────────┐
+    │ MySQL (RDS) │
+    └─────────────┘
 ```
 
-(On Windows, or if your shell doesn't expand the glob, you might need to specify the JAR file name explicitly on the command line at the end there.)
+### Padrões Arquiteturais Aplicados
 
-You can then access the Petclinic at <http://localhost:8080/>.
+| Padrão | Propósito | Implementação |
+|--------|-----------|---------------|
+| **Strangler Pattern** | Substituição gradual de funcionalidades | Roteamento seletivo no API Gateway |
+| **Domain-Driven Design** | Decomposição por contextos delimitados | Extração do Bounded Context "Owners" |
+| **Bulkhead Pattern** | Isolamento de recursos e contenção de falhas | RDS Proxy + pool Hikari limitado |
+| **Sidecar Pattern** | Observabilidade como preocupação transversal | AWS Powertools for Java (logs, traces, métricas) |
+| **Stateless Architecture** | Gestão de estado externalizada | AWS Secrets Manager + Parameter Store |
 
-<img width="1042" alt="petclinic-screenshot" src="https://cloud.githubusercontent.com/assets/838318/19727082/2aee6d6c-9b8e-11e6-81fe-e889a5ddfded.png">
+---
 
-Or you can run it from Maven directly using the Spring Boot Maven plugin. If you do this, it will pick up changes that you make in the project immediately (changes to Java source files require a compile as well - most people use an IDE for this):
+## ⚙️ Tecnologias Utilizadas
 
-```bash
-./mvnw spring-boot:run
+### 🖥️ Computação e Frameworks
+
+- **[AWS Lambda](https://aws.amazon.com/lambda/)** - Plataforma FaaS para execução de funções sob demanda
+- **[Spring Cloud Function](https://spring.io/projects/spring-cloud-function)** - Abstração para desenvolvimento de funções agnósticas de plataforma
+- **[Spring Boot 3.2](https://spring.io/projects/spring-boot)** - Framework de aplicação com contexto minimizado
+- **[AWS Lambda SnapStart](https://docs.aws.amazon.com/lambda/latest/dg/snapstart.html)** - Otimização de cold start para JVM (redução de ~51% no tempo de inicialização)
+
+### 🌐 Interface, Roteamento e Persistência
+
+- **[Amazon API Gateway](https://aws.amazon.com/api-gateway/)** - Gerenciamento de APIs REST com roteamento HTTP
+- **[Amazon RDS (MySQL)](https://aws.amazon.com/rds/)** - Banco de dados relacional gerenciado
+- **[Amazon RDS Proxy](https://aws.amazon.com/rds/proxy/)** - Pool de conexões gerenciado (mitigação de saturação)
+- **[Spring JDBC Template](https://docs.spring.io/spring-framework/reference/data-access/jdbc.html)** - Acesso a dados leve (substituindo JPA para reduzir cold start)
+- **[HikariCP](https://github.com/brettwooldridge/HikariCP)** - Pool de conexões JDBC de alta performance
+
+### 🔐 Rede, Segurança e Gerenciamento de Acesso
+
+- **[Amazon VPC](https://aws.amazon.com/vpc/)** - Isolamento de rede com sub-redes privadas
+- **[VPC Interface Endpoints (PrivateLink)](https://docs.aws.amazon.com/vpc/latest/privatelink/)** - Comunicação privada com serviços AWS (Secrets Manager, SSM)
+- **[AWS IAM](https://aws.amazon.com/iam/)** - Controle de acesso baseado em identidade (least privilege)
+- **[AWS Secrets Manager](https://aws.amazon.com/secrets-manager/)** - Gerenciamento seguro de credenciais de banco de dados
+- **[AWS KMS](https://aws.amazon.com/kms/)** - Criptografia de segredos e snapshots do SnapStart
+
+### 📊 Observabilidade, Build e Testes
+
+- **[Amazon CloudWatch](https://aws.amazon.com/cloudwatch/)** - Logs centralizados e métricas operacionais
+- **[AWS X-Ray](https://aws.amazon.com/xray/)** - Rastreamento distribuído (tracing) de requisições
+- **[AWS Powertools for Java](https://docs.powertools.aws.dev/lambda/java/)** - Instrumentação de logs estruturados, traces e métricas
+- **[Serverless Framework](https://www.serverless.com/)** - Infraestrutura como Código (IaC) para deploy automatizado
+- **[Apache Maven](https://maven.apache.org/)** - Gerenciamento de dependências e build (fat-JAR)
+- **[k6](https://k6.io/)** - Testes de carga e performance (spike, soak, peak tests)
+- **[Postman](https://www.postman.com/)** - Testes funcionais e validação de API
+
+---
+
+## 🚀 Funcionalidades Migradas
+
+O domínio **Owners** foi decomposto nas seguintes funções independentes:
+
+| Função | Endpoint | Método | Descrição |
+|--------|----------|--------|-----------|
+| `owners-list` | `/owners` | GET | Listagem paginada de proprietários |
+| `owners-get` | `/owners/{id}` | GET | Detalhes de um proprietário específico |
+| `owners-create` | `/owners` | POST | Cadastro de novo proprietário |
+| `owners-update` | `/owners/{id}` | PUT | Atualização de dados cadastrais |
+| `owners-delete` | `/owners/{id}` | DELETE | Remoção lógica de proprietário |
+
+Cada função é:
+- ✅ **Autônoma**: empacotada, implantada e escalada independentemente
+- ✅ **Stateless**: estado externalizado (banco de dados + Secrets Manager)
+- ✅ **Observável**: rastreamento distribuído com X-Ray e métricas no CloudWatch
+- ✅ **Resiliente**: pool de conexões limitado e retry com backoff exponencial
+
+---
+
+## 📦 Estrutura do Projeto
+
+```
+petclinic-serverless/
+├── src/main/java/org/springframework/samples/petclinic/
+│   ├── owners/
+│   │   ├── functions/          # Funções Lambda (Spring Cloud Function)
+│   │   │   ├── OwnerCreateFunction.java
+│   │   │   ├── OwnerGetFunction.java
+│   │   │   ├── OwnerListFunction.java
+│   │   │   ├── OwnerUpdateFunction.java
+│   │   │   └── OwnerDeleteFunction.java
+│   │   ├── domain/              # Entidades e objetos de domínio
+│   │   ├── repository/          # Camada de acesso a dados (JDBC)
+│   │   └── config/              # Configurações (DataSource, Observability)
+│   └── ServerlessApplication.java
+├── serverless.yml               # Configuração de infraestrutura (IaC)
+├── pom.xml                      # Dependências Maven
+└── docs/
+    └── architecture/            # Diagramas e documentação técnica
 ```
 
-> NOTE: If you prefer to use Gradle, you can build the app using `./gradlew build` and look for the jar file in `build/libs`.
+---
 
-## Building a Container
+## 🛠️ Como Executar
 
-There is no `Dockerfile` in this project. You can build a container image (if you have a docker daemon) using the Spring Boot build plugin:
+### Pré-requisitos
 
+- **Java 17+** (OpenJDK ou Amazon Corretto)
+- **Maven 3.8+**
+- **AWS CLI** configurado com credenciais válidas
+- **Serverless Framework** instalado globalmente:
+  ```bash
+  npm install -g serverless
+  ```
+- **Conta AWS** com permissões para Lambda, API Gateway, RDS, VPC, Secrets Manager
+
+### 1️⃣ Configuração do Ambiente
+
+Clone o repositório:
 ```bash
-./mvnw spring-boot:build-image
+git clone https://github.com/nathalia-acordi/serverless-spring-petclinic.git
+cd serverless-spring-petclinic/petclinic-serverless
 ```
 
-## In case you find a bug/suggested improvement for Spring Petclinic
-
-Our issue tracker is available [here](https://github.com/spring-projects/spring-petclinic/issues).
-
-## Database configuration
-
-In its default configuration, Petclinic uses an in-memory database (H2) which
-gets populated at startup with data. The h2 console is exposed at `http://localhost:8080/h2-console`,
-and it is possible to inspect the content of the database using the `jdbc:h2:mem:<uuid>` URL. The UUID is printed at startup to the console.
-
-A similar setup is provided for MySQL and PostgreSQL if a persistent database configuration is needed. Note that whenever the database type changes, the app needs to run with a different profile: `spring.profiles.active=mysql` for MySQL or `spring.profiles.active=postgres` for PostgreSQL. See the [Spring Boot documentation](https://docs.spring.io/spring-boot/how-to/properties-and-configuration.html#howto.properties-and-configuration.set-active-spring-profiles) for more detail on how to set the active profile.
-
-You can start MySQL or PostgreSQL locally with whatever installer works for your OS or use docker:
-
-```bash
-docker run -e MYSQL_USER=petclinic -e MYSQL_PASSWORD=petclinic -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=petclinic -p 3306:3306 mysql:9.2
+Configure as variáveis de ambiente no arquivo `serverless.yml`:
+```yaml
+provider:
+  environment:
+    DB_SECRET_ARN: arn:aws:secretsmanager:us-east-1:123456789012:secret:petclinic-db-secret
+    VPC_SUBNET_IDS: subnet-abc123,subnet-def456
+    SECURITY_GROUP_ID: sg-0123456789abcdef
 ```
 
-or
+### 2️⃣ Build da Aplicação
 
+Compile o projeto e gere o artefato JAR:
 ```bash
-docker run -e POSTGRES_USER=petclinic -e POSTGRES_PASSWORD=petclinic -e POSTGRES_DB=petclinic -p 5432:5432 postgres:18.0
+mvn clean package -DskipTests
 ```
 
-Further documentation is provided for [MySQL](https://github.com/spring-projects/spring-petclinic/blob/main/src/main/resources/db/mysql/petclinic_db_setup_mysql.txt)
-and [PostgreSQL](https://github.com/spring-projects/spring-petclinic/blob/main/src/main/resources/db/postgres/petclinic_db_setup_postgres.txt).
+### 3️⃣ Deploy na AWS
 
-Instead of vanilla `docker` you can also use the provided `docker-compose.yml` file to start the database containers. Each one has a service named after the Spring profile:
-
+Implante a infraestrutura e as funções:
 ```bash
-docker compose up mysql
+serverless deploy --stage dev --region us-east-1
 ```
 
-or
+Saída esperada:
+```
+✔ Service deployed to stack petclinic-serverless-dev (112s)
 
-```bash
-docker compose up postgres
+endpoints:
+  GET    - https://abc123xyz.execute-api.us-east-1.amazonaws.com/dev/owners
+  GET    - https://abc123xyz.execute-api.us-east-1.amazonaws.com/dev/owners/{id}
+  POST   - https://abc123xyz.execute-api.us-east-1.amazonaws.com/dev/owners
+  PUT    - https://abc123xyz.execute-api.us-east-1.amazonaws.com/dev/owners/{id}
+  DELETE - https://abc123xyz.execute-api.us-east-1.amazonaws.com/dev/owners/{id}
+
+functions:
+  owners-list: petclinic-serverless-dev-owners-list (15 MB)
+  owners-get: petclinic-serverless-dev-owners-get (15 MB)
+  ...
 ```
 
-## Test Applications
+### 4️⃣ Testes Funcionais
 
-At development time we recommend you use the test applications set up as `main()` methods in `PetClinicIntegrationTests` (using the default H2 database and also adding Spring Boot Devtools), `MySqlTestApplication` and `PostgresIntegrationTests`. These are set up so that you can run the apps in your IDE to get fast feedback and also run the same classes as integration tests against the respective database. The MySql integration tests use Testcontainers to start the database in a Docker container, and the Postgres tests use Docker Compose to do the same thing.
+Teste a API utilizando curl ou Postman:
+```bash
+# Listar proprietários
+curl https://abc123xyz.execute-api.us-east-1.amazonaws.com/dev/owners
 
-## Compiling the CSS
+# Buscar proprietário específico
+curl https://abc123xyz.execute-api.us-east-1.amazonaws.com/dev/owners/1
 
-There is a `petclinic.css` in `src/main/resources/static/resources/css`. It was generated from the `petclinic.scss` source, combined with the [Bootstrap](https://getbootstrap.com/) library. If you make changes to the `scss`, or upgrade Bootstrap, you will need to re-compile the CSS resources using the Maven profile "css", i.e. `./mvnw package -P css`. There is no build profile for Gradle to compile the CSS.
+# Criar novo proprietário
+curl -X POST https://abc123xyz.execute-api.us-east-1.amazonaws.com/dev/owners \
+  -H "Content-Type: application/json" \
+  -d '{"firstName":"Jane","lastName":"Doe","address":"123 Main St","city":"Springfield","telephone":"5551234567"}'
+```
 
-## Working with Petclinic in your IDE
+### 5️⃣ Testes de Carga (Opcional)
 
-### Prerequisites
+Execute os testes de performance com k6:
+```bash
+k6 run --vus 100 --duration 30s tests/load/spike-test.js
+```
 
-The following items should be installed in your system:
+---
 
-- Java 17 or newer (full JDK, not a JRE)
-- [Git command line tool](https://help.github.com/articles/set-up-git)
-- Your preferred IDE
-  - Eclipse with the m2e plugin. Note: when m2e is available, there is an m2 icon in `Help -> About` dialog. If m2e is
-  not there, follow the install process [here](https://www.eclipse.org/m2e/)
-  - [Spring Tools Suite](https://spring.io/tools) (STS)
-  - [IntelliJ IDEA](https://www.jetbrains.com/idea/)
-  - [VS Code](https://code.visualstudio.com)
+## 📊 Resultados Experimentais
 
-### Steps
+### Desempenho (Cold Start)
 
-1. On the command line run:
+| Métrica | Sem SnapStart | Com SnapStart | Melhoria |
+|---------|---------------|---------------|----------|
+| Latência média (1ª invocação) | 5.246 ms | 2.562 ms | **51,15%** |
+| Tempo de restauração (RESTORE) | - | ~748 ms | - |
 
-    ```bash
-    git clone https://github.com/spring-projects/spring-petclinic.git
-    ```
+### Escalabilidade (Peak Load Test)
 
-1. Inside Eclipse or STS:
+| Arquitetura | Vazão Máxima | Latência p95 | Taxa de Erros |
+|-------------|--------------|--------------|---------------|
+| **Monólito** | 3,13 req/s | 867 ms | 2,19% |
+| **Serverless** | **270,5 req/s** | **61 ms** | 30,14%* |
 
-    Open the project via `File -> Import -> Maven -> Existing Maven project`, then select the root directory of the cloned repo.
+*Os erros em alta concorrência ocorreram devido à saturação do banco de dados (gargalo conhecido), não das funções Lambda.
 
-    Then either build on the command line `./mvnw generate-resources` or use the Eclipse launcher (right-click on project and `Run As -> Maven install`) to generate the CSS. Run the application's main method by right-clicking on it and choosing `Run As -> Java Application`.
+### Resiliência (Soak Test - 1 hora)
 
-1. Inside IntelliJ IDEA:
+| Métrica | Monólito | Serverless |
+|---------|----------|------------|
+| Latência p95 | 31.918 ms (falha crítica) | **59 ms** (estável) |
+| Vazão média | 2 req/s (degradação) | **120,5 req/s** |
 
-    In the main menu, choose `File -> Open` and select the Petclinic [pom.xml](pom.xml). Click on the `Open` button.
+**Conclusão**: A arquitetura serverless demonstrou elasticidade superior, mantendo latência estável mesmo sob carga prolongada, enquanto o monólito apresentou degradação severa.
 
-    - CSS files are generated from the Maven build. You can build them on the command line `./mvnw generate-resources` or right-click on the `spring-petclinic` project then `Maven -> Generates sources and Update Folders`.
+---
 
-    - A run configuration named `PetClinicApplication` should have been created for you if you're using a recent Ultimate version. Otherwise, run the application by right-clicking on the `PetClinicApplication` main class and choosing `Run 'PetClinicApplication'`.
+## 🎓 Referências Acadêmicas
 
-1. Navigate to the Petclinic
+Este projeto implementa conceitos de:
 
-    Visit [http://localhost:8080](http://localhost:8080) in your browser.
+- **FOWLER, M.** (2004). *Strangler Fig Application* - Padrão de migração incremental
+- **EVANS, E.** (2003). *Domain-Driven Design* - Decomposição por contextos delimitados
+- **NEWMAN, S.** (2015). *Building Microservices* - Estratégias de decomposição
+- **BALDINI, I. et al.** (2017). *Serverless Computing: Current Trends and Open Problems*
+- **BASS, L.; CLEMENTS, P.; KAZMAN, R.** (2013). *Software Architecture in Practice* - ATAM
 
-## Looking for something in particular?
+---
 
-|Spring Boot Configuration | Class or Java property files  |
-|--------------------------|---|
-|The Main Class | [PetClinicApplication](https://github.com/spring-projects/spring-petclinic/blob/main/src/main/java/org/springframework/samples/petclinic/PetClinicApplication.java) |
-|Properties Files | [application.properties](https://github.com/spring-projects/spring-petclinic/blob/main/src/main/resources) |
-|Caching | [CacheConfiguration](https://github.com/spring-projects/spring-petclinic/blob/main/src/main/java/org/springframework/samples/petclinic/system/CacheConfiguration.java) |
+## 🤝 Contribuindo
 
-## Interesting Spring Petclinic branches and forks
+Contribuições são bem-vindas! Este projeto tem fins educacionais, mas melhorias na implementação, documentação ou testes são encorajadas.
 
-The Spring Petclinic "main" branch in the [spring-projects](https://github.com/spring-projects/spring-petclinic)
-GitHub org is the "canonical" implementation based on Spring Boot and Thymeleaf. There are
-[quite a few forks](https://spring-petclinic.github.io/docs/forks.html) in the GitHub org
-[spring-petclinic](https://github.com/spring-petclinic). If you are interested in using a different technology stack to implement the Pet Clinic, please join the community there.
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/nova-funcionalidade`)
+3. Commit suas mudanças (`git commit -m 'Adiciona nova funcionalidade'`)
+4. Push para a branch (`git push origin feature/nova-funcionalidade`)
+5. Abra um Pull Request
 
-## Interaction with other open-source projects
+---
 
-One of the best parts about working on the Spring Petclinic application is that we have the opportunity to work in direct contact with many Open Source projects. We found bugs/suggested improvements on various topics such as Spring, Spring Data, Bean Validation and even Eclipse! In many cases, they've been fixed/implemented in just a few days.
-Here is a list of them:
+## 👤 Autora
 
-| Name | Issue |
-|------|-------|
-| Spring JDBC: simplify usage of NamedParameterJdbcTemplate | [SPR-10256](https://github.com/spring-projects/spring-framework/issues/14889) and [SPR-10257](https://github.com/spring-projects/spring-framework/issues/14890) |
-| Bean Validation / Hibernate Validator: simplify Maven dependencies and backward compatibility |[HV-790](https://hibernate.atlassian.net/browse/HV-790) and [HV-792](https://hibernate.atlassian.net/browse/HV-792) |
-| Spring Data: provide more flexibility when working with JPQL queries | [DATAJPA-292](https://github.com/spring-projects/spring-data-jpa/issues/704) |
+**Nathália Acordi da Silva**  
+📧 Email: [nathalia.acordi@gmail.com](mailto:nathalia.acordi@gmail.com)  
+🎓 Engenharia de Software - UDESC/CEAVI (2025)  
+🔗 LinkedIn: [linkedin.com/in/nathalia-acordi](https://linkedin.com/in/nathalia-acordi)
 
-## Contributing
+---
 
-The [issue tracker](https://github.com/spring-projects/spring-petclinic/issues) is the preferred channel for bug reports, feature requests and submitting pull requests.
+## 🙏 Agradecimentos
 
-For pull requests, editor preferences are available in the [editor config](.editorconfig) for easy use in common text editors. Read more and download plugins at <https://editorconfig.org>. All commits must include a __Signed-off-by__ trailer at the end of each commit message to indicate that the contributor agrees to the Developer Certificate of Origin.
-For additional details, please refer to the blog post [Hello DCO, Goodbye CLA: Simplifying Contributions to Spring](https://spring.io/blog/2025/01/06/hello-dco-goodbye-cla-simplifying-contributions-to-spring).
+- **Prof. Dr. Roberto Paulo Farah** - Orientador do TCC
+- **UDESC/CEAVI** - Pelo suporte acadêmico
 
-## License
+---
 
-The Spring PetClinic sample application is released under version 2.0 of the [Apache License](https://www.apache.org/licenses/LICENSE-2.0).
+<div align="center">
+
+**⭐ Se este projeto foi útil para sua pesquisa ou aprendizado, considere dar uma estrela no repositório!**
+
+
+</div>
