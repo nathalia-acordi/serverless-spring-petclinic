@@ -22,10 +22,7 @@ import jakarta.validation.constraints.Size;
 import java.util.Map;
 import java.util.function.Function;
 
-/**
- * Spring Cloud Function bean mapping POST /owners to creation logic.
- * Powertools annotations provide structured logs, metrics and traces.
- */
+
 @Slf4j
 @Component
 public class CreateOwnerFunction implements Function<APIGatewayV2HTTPEvent, APIGatewayV2HTTPResponse> {
@@ -38,7 +35,7 @@ public class CreateOwnerFunction implements Function<APIGatewayV2HTTPEvent, APIG
     }
 
     @Override
-    @Logging(logEvent = true) // log request/response as structured JSON
+    @Logging(logEvent = true) 
     @Tracing(namespace = "Petclinic")
     public APIGatewayV2HTTPResponse apply(APIGatewayV2HTTPEvent event) {
         long handlerStart = MetricsSupport.startTimer();

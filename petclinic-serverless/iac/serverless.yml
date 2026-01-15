@@ -111,7 +111,75 @@ functions:
           path: /owners/{id}
           method: delete
 
-resources:
+  visits-create:
+    handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+    description: Create Visit (POST /owners/{ownerId}/pets/{petId}/visits)
+    package:
+      artifact: ../functions/visits-create/target/visits-create.jar
+    snapStart: true
+    environment:
+      MAIN_CLASS: com.example.petclinic.functions.visits.create.VisitServiceConfiguration
+      SPRING_CLOUD_FUNCTION_DEFINITION: createVisitFunction
+    events:
+      - httpApi:
+          path: /owners/{ownerId}/pets/{petId}/visits
+          method: post
+
+  visits-list:
+    handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+    description: List Visits (GET /owners/{ownerId}/pets/{petId}/visits)
+    package:
+      artifact: ../functions/visits-list/target/visits-list.jar
+    snapStart: true
+    environment:
+      MAIN_CLASS: com.example.petclinic.functions.visits.list.VisitServiceConfiguration
+      SPRING_CLOUD_FUNCTION_DEFINITION: listVisitsFunction
+    events:
+      - httpApi:
+          path: /owners/{ownerId}/pets/{petId}/visits
+          method: get
+
+  visits-get:
+    handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+    description: Get Visit (GET /owners/{ownerId}/pets/{petId}/visits/{visitId})
+    package:
+      artifact: ../functions/visits-get/target/visits-get.jar
+    snapStart: true
+    environment:
+      MAIN_CLASS: com.example.petclinic.functions.visits.get.VisitServiceConfiguration
+      SPRING_CLOUD_FUNCTION_DEFINITION: getVisitFunction
+    events:
+      - httpApi:
+          path: /owners/{ownerId}/pets/{petId}/visits/{visitId}
+          method: get
+
+  visits-update:
+    handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+    description: Update Visit (PUT /owners/{ownerId}/pets/{petId}/visits/{visitId})
+    package:
+      artifact: ../functions/visits-update/target/visits-update.jar
+    snapStart: true
+    environment:
+      MAIN_CLASS: com.example.petclinic.functions.visits.update.VisitServiceConfiguration
+      SPRING_CLOUD_FUNCTION_DEFINITION: updateVisitFunction
+    events:
+      - httpApi:
+          path: /owners/{ownerId}/pets/{petId}/visits/{visitId}
+          method: put
+
+  visits-delete:
+    handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+    description: Delete Visit (DELETE /owners/{ownerId}/pets/{petId}/visits/{visitId})
+    package:
+      artifact: ../functions/visits-delete/target/visits-delete.jar
+    snapStart: true
+    environment:
+      MAIN_CLASS: com.example.petclinic.functions.visits.delete.VisitServiceConfiguration
+      SPRING_CLOUD_FUNCTION_DEFINITION: deleteVisitFunction
+    events:
+      - httpApi:
+          path: /owners/{ownerId}/pets/{petId}/visits/{visitId}
+          method: delete
   # 1) CloudWatch Dashboard
   - ${file(./cloudwatch-dash.yml)}
 

@@ -10,6 +10,7 @@ public final class ApiResponses {
 
   public static APIGatewayV2HTTPResponse ok(Object body) { return build(200, body); }
   public static APIGatewayV2HTTPResponse created(Object body) { return build(201, body); }
+  public static APIGatewayV2HTTPResponse noContent() { return build(204, null); }
   public static APIGatewayV2HTTPResponse badRequest(String code, String message) {
     return build(400, Map.of("code", code, "message", message));
   }

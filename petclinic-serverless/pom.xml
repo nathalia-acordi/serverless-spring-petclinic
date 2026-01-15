@@ -16,10 +16,15 @@
         <module>api-common</module>
         <module>functions/owners-create</module>
         <module>functions/owners-list</module>
-    <module>functions/owners-get</module>
-    <module>functions/owners-update</module>
-    <module>functions/owners-delete</module>
-        <!-- Future: functions/pets-*, functions/visits-*, functions/vets-*, functions/specialties-* -->
+        <module>functions/owners-get</module>
+        <module>functions/owners-update</module>
+        <module>functions/owners-delete</module>
+        <module>functions/visits-create</module>
+        <module>functions/visits-list</module>
+        <module>functions/visits-get</module>
+        <module>functions/visits-update</module>
+        <module>functions/visits-delete</module>
+        <!-- Future: functions/pets-*, functions/vets-*, functions/specialties-* -->
     </modules>
 
     <properties>
