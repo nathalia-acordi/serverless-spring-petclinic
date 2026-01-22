@@ -2,23 +2,31 @@ service: petclinic-serverless
 configValidationMode: warn
 frameworkVersion: '4'
 
+plugins:
+  - serverless-offline
+
 provider:
   name: aws
   runtime: java17
-  stage: ${opt:stage, 'dev'}
+  stage: ${opt:stage, 'local'}
   region: ${opt:region, 'sa-east-1'}
-  profile: ${env:SLS_AWS_PROFILE, 'petclinic'}
+  profile: ${env:SLS_AWS_PROFILE, 'offline'}
   memorySize: 512
   timeout: 15
-  versionFunctions: true             # Necessário para publicar versões e habilitar SnapStart
+  versionFunctions: ${self:provider.stage} != 'local'
   environment:
     POWERTOOLS_SERVICE_NAME: petclinic
     POWERTOOLS_METRICS_NAMESPACE: Petclinic
     POWERTOOLS_LOGGER_LOG_EVENT: true
     LOG_LEVEL: INFO
-    DB_SECRET_ARN: ${ssm:/petclinic/${self:provider.stage}/db/secret-arn}
-    DB_PROXY_ENDPOINT: ${ssm:/petclinic/${self:provider.stage}/db/proxy-endpoint}
+    ENVIRONMENT_TYPE: ${self:provider.stage}
+    DB_SECRET_ARN: ${ssm:/petclinic/${self:provider.stage}/db/secret-arn, 'local-test'}
+    DB_PROXY_ENDPOINT: ${ssm:/petclinic/${self:provider.stage}/db/proxy-endpoint, 'localhost:3306'}
     DB_NAME: petclinic
+    DB_USERNAME: ${env:DB_USERNAME, 'sa'}
+    DB_PASSWORD: ${env:DB_PASSWORD, ''}
+    DB_JDBC_URL: ${env:DB_JDBC_URL, 'jdbc:h2:mem:testdb'}
+    DB_DRIVER: ${env:DB_DRIVER, 'org.h2.Driver'}
   vpc:
     securityGroupIds:
       - sg-0ef0c6b57f1ff926c
@@ -33,6 +41,13 @@ provider:
             - secretsmanager:GetSecretValue
           Resource:
             - arn:aws:secretsmanager:sa-east-1:151509777978:secret:petclinic/dev/mysql-*
+
+custom:
+  serverless-offline:
+    httpPort: 3000
+    reloadHandler: true
+    ignoreJavaDeprecation: true
+    websocketPort: 3001
 
 package:
   individually: true
@@ -152,10 +167,3 @@ functions:
       - httpApi:
           path: /owners/{ownerId}/pets/{petId}
           method: put
-  # 1) CloudWatch Dashboard
-  - ${file(./cloudwatch-dash.yml)}
-
-  # 2) Apenas Outputs informativos (sem SnapStart no modo debug)
-  - Outputs:
-      ProxyEndpointNote:
-        Value: "RDS Proxy criado via CLI; endpoint no SSM /petclinic/dev/db/proxy-endpoint"

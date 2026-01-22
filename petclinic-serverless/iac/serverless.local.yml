@@ -1,0 +1,145 @@
+service: petclinic-serverless
+configValidationMode: warn
+frameworkVersion: '4'
+
+plugins:
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: java17
+  stage: ${opt:stage, 'local'}
+  region: ${opt:region, 'sa-east-1'}
+  profile: offline
+  memorySize: 512
+  timeout: 15
+  environment:
+    POWERTOOLS_SERVICE_NAME: petclinic
+    POWERTOOLS_METRICS_NAMESPACE: Petclinic
+    POWERTOOLS_LOGGER_LOG_EVENT: true
+    LOG_LEVEL: INFO
+    ENVIRONMENT_TYPE: local
+    DB_SECRET_ARN: local-test
+    DB_PROXY_ENDPOINT: localhost:3306
+    DB_NAME: petclinic
+    DB_USERNAME: sa
+    DB_PASSWORD: ''
+    DB_JDBC_URL: jdbc:h2:mem:testdb
+    DB_DRIVER: org.h2.Driver
+
+custom:
+  serverless-offline:
+    httpPort: 3000
+    reloadHandler: true
+    ignoreJavaDeprecation: true
+
+package:
+  individually: true
+  patterns:
+    - '!**/*.md'
+    - '!**/test/**'
+
+functions:
+  owners-create:
+    handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+    description: Create Owner (POST /owners)
+    package:
+      artifact: ../functions/owners-create/target/owners-create.jar
+    environment:
+      MAIN_CLASS: com.example.petclinic.functions.owners.create.OwnersCreateConfig
+      SPRING_CLOUD_FUNCTION_DEFINITION: ownersCreate
+    events:
+      - httpApi:
+          path: /owners
+          method: post
+
+  owners-list:
+    handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+    description: List Owners (GET /owners)
+    package:
+      artifact: ../functions/owners-list/target/owners-list.jar
+    environment:
+      MAIN_CLASS: com.example.petclinic.functions.owners.list.OwnersListConfig
+      SPRING_CLOUD_FUNCTION_DEFINITION: ownersList
+    events:
+      - httpApi:
+          path: /owners
+          method: get
+
+  owners-get:
+    handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+    description: Get Owner (GET /owners/{id})
+    package:
+      artifact: ../functions/owners-get/target/owners-get.jar
+    environment:
+      MAIN_CLASS: com.example.petclinic.functions.owners.get.OwnersGetConfig
+      SPRING_CLOUD_FUNCTION_DEFINITION: ownersGet
+    events:
+      - httpApi:
+          path: /owners/{id}
+          method: get
+
+  owners-update:
+    handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+    description: Update Owner (PUT /owners/{id})
+    package:
+      artifact: ../functions/owners-update/target/owners-update.jar
+    environment:
+      MAIN_CLASS: com.example.petclinic.functions.owners.update.OwnersUpdateConfig
+      SPRING_CLOUD_FUNCTION_DEFINITION: ownersUpdate
+    events:
+      - httpApi:
+          path: /owners/{id}
+          method: put
+
+  visits-create:
+    handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+    description: Create Visit (POST /owners/{ownerId}/pets/{petId}/visits)
+    package:
+      artifact: ../functions/visits-create/target/visits-create.jar
+    environment:
+      MAIN_CLASS: com.example.petclinic.functions.visits.create.VisitServiceConfiguration
+      SPRING_CLOUD_FUNCTION_DEFINITION: createVisitFunction
+    events:
+      - httpApi:
+          path: /owners/{ownerId}/pets/{petId}/visits
+          method: post
+
+  vets-list:
+    handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+    description: List Vets (GET /vets)
+    package:
+      artifact: ../functions/vets-list/target/vets-list.jar
+    environment:
+      MAIN_CLASS: com.example.petclinic.functions.vets.list.VetServiceConfiguration
+      SPRING_CLOUD_FUNCTION_DEFINITION: listVetsFunction
+    events:
+      - httpApi:
+          path: /vets
+          method: get
+
+  pets-create:
+    handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+    description: Create Pet (POST /owners/{ownerId}/pets)
+    package:
+      artifact: ../functions/pets-create/target/pets-create.jar
+    environment:
+      MAIN_CLASS: com.example.petclinic.functions.pets.create.CreatePetFunction
+      SPRING_CLOUD_FUNCTION_DEFINITION: createPetFunction
+    events:
+      - httpApi:
+          path: /owners/{ownerId}/pets
+          method: post
+
+  pets-update:
+    handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+    description: Update Pet (PUT /owners/{ownerId}/pets/{petId})
+    package:
+      artifact: ../functions/pets-update/target/pets-update.jar
+    environment:
+      MAIN_CLASS: com.example.petclinic.functions.pets.update.UpdatePetFunction
+      SPRING_CLOUD_FUNCTION_DEFINITION: updatePetFunction
+    events:
+      - httpApi:
+          path: /owners/{ownerId}/pets/{petId}
+          method: put
