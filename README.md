@@ -292,7 +292,7 @@ Contribuições são bem-vindas! Este projeto tem fins educacionais, mas melhori
 **Nathália Acordi da Silva**  
 📧 Email: [nathalia.acordi@gmail.com](mailto:nathalia.acordi@gmail.com)  
 🎓 Engenharia de Software - UDESC/CEAVI (2025)  
-🔗 LinkedIn: [linkedin.com/in/nathalia-acordi](https://linkedin.com/in/nathalia-acordi)
+🔗 LinkedIn: [linkedin.com/in/nathalia-acordi](https://www.linkedin.com/in/nath%C3%A1lia-acordi-0a564b223/)
 
 ---
 
