@@ -38,20 +38,7 @@ public class ListVetsFunction implements Function<APIGatewayV2HTTPEvent, APIGate
         try {
             long serviceStart = MetricsSupport.startTimer();
             try {
-                Map<String, String> queryParams = event.getQueryStringParameters();
-                int page = 0;
-                int size = 20;
-                
-                if (queryParams != null) {
-                    if (queryParams.containsKey("page")) {
-                        page = Integer.parseInt(queryParams.get("page"));
-                    }
-                    if (queryParams.containsKey("size")) {
-                        size = Integer.parseInt(queryParams.get("size"));
-                    }
-                }
-
-                List<Vet> vets = vetService.list(page, size);
+                List<Vet> vets = vetService.list(0, 999);
                 MetricsSupport.increment("VetsListCount", "Vets", "GET_/vets");
                 MetricsSupport.publishTimer("VetsServiceListLatencyMs", MetricsSupport.endTimer(serviceStart), "Vets", "GET_/vets");
 

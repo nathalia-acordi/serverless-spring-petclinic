@@ -18,14 +18,8 @@
         <module>functions/owners-list</module>
         <module>functions/owners-get</module>
         <module>functions/owners-update</module>
-        <module>functions/owners-delete</module>
         <module>functions/visits-create</module>
-        <module>functions/visits-list</module>
-        <module>functions/visits-get</module>
-        <module>functions/visits-update</module>
-        <module>functions/visits-delete</module>
         <module>functions/vets-list</module>
-        <module>functions/vets-get</module>
         <!-- Future: functions/pets-*, functions/specialties-* -->
     </modules>
 

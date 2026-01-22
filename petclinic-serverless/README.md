@@ -26,24 +26,18 @@ Matriz de migração:
 | GET /owners | owners-list |
 | GET /owners/{id} | owners-get |
 | PUT /owners/{id} | owners-update |
-| DELETE /owners/{id} | owners-delete |
 
 ### Visits
 
 | Endpoint | Função |
 |----------|--------|
 | POST /owners/{ownerId}/pets/{petId}/visits | visits-create |
-| GET /owners/{ownerId}/pets/{petId}/visits | visits-list |
-| GET /owners/{ownerId}/pets/{petId}/visits/{visitId} | visits-get |
-| PUT /owners/{ownerId}/pets/{petId}/visits/{visitId} | visits-update |
-| DELETE /owners/{ownerId}/pets/{petId}/visits/{visitId} | visits-delete |
 
 ### Vets
 
 | Endpoint | Função |
 |----------|--------|
 | GET /vets | vets-list |
-| GET /vets/{vetId} | vets-get |
 
 ## Padrões Arquiteturais
 
