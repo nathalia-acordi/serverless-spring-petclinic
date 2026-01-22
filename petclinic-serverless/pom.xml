@@ -20,7 +20,9 @@
         <module>functions/owners-update</module>
         <module>functions/visits-create</module>
         <module>functions/vets-list</module>
-        <!-- Future: functions/pets-*, functions/specialties-* -->
+        <module>functions/pets-create</module>
+        <module>functions/pets-update</module>
+        <!-- Future: functions/specialties-* -->
     </modules>
 
     <properties>

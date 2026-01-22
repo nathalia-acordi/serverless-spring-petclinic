@@ -39,6 +39,13 @@ Matriz de migração:
 |----------|--------|
 | GET /vets | vets-list |
 
+### Pets
+
+| Endpoint | Função |
+|----------|--------|
+| POST /owners/{ownerId}/pets | pets-create |
+| PUT /owners/{ownerId}/pets/{petId} | pets-update |
+
 ## Padrões Arquiteturais
 
 - Strangler Pattern: convivência com monólito enquanto rotas de Owners migram.

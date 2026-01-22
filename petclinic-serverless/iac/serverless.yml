@@ -124,6 +124,34 @@ functions:
       - httpApi:
           path: /vets
           method: get
+
+  pets-create:
+    handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+    description: Create Pet (POST /owners/{ownerId}/pets)
+    package:
+      artifact: ../functions/pets-create/target/pets-create.jar
+    snapStart: true
+    environment:
+      MAIN_CLASS: com.example.petclinic.functions.pets.create.CreatePetFunction
+      SPRING_CLOUD_FUNCTION_DEFINITION: createPet
+    events:
+      - httpApi:
+          path: /owners/{ownerId}/pets
+          method: post
+
+  pets-update:
+    handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+    description: Update Pet (PUT /owners/{ownerId}/pets/{petId})
+    package:
+      artifact: ../functions/pets-update/target/pets-update.jar
+    snapStart: true
+    environment:
+      MAIN_CLASS: com.example.petclinic.functions.pets.update.UpdatePetFunction
+      SPRING_CLOUD_FUNCTION_DEFINITION: updatePet
+    events:
+      - httpApi:
+          path: /owners/{ownerId}/pets/{petId}
+          method: put
   # 1) CloudWatch Dashboard
   - ${file(./cloudwatch-dash.yml)}
 
