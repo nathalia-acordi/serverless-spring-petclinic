@@ -3,7 +3,7 @@
 Arquitetura: Java 17 + Spring Boot 3 + Spring Cloud Function + AWS Lambda (função por endpoint) + API Gateway HTTP API + VPC Privada + RDS Proxy (MySQL) + HikariCP (maximumPoolSize=5, minimumIdle=0) + AWS Powertools v2 + SnapStart.
 
 ## Objetivo
-Migrar domínios do Spring PetClinic (Owners, Visits) para funções independentes a fim de comparar desempenho, escalabilidade, resiliência e custo, mantendo convivência com o monólito (Strangler Pattern) e reutilizando o mesmo banco MySQL.
+Migrar domínios do Spring PetClinic (Owners, Visits, Vets) para funções independentes a fim de comparar desempenho, escalabilidade, resiliência e custo, mantendo convivência com o monólito (Strangler Pattern) e reutilizando o mesmo banco MySQL.
 
 ## Escopo e Estrutura
 
@@ -37,6 +37,13 @@ Matriz de migração:
 | GET /owners/{ownerId}/pets/{petId}/visits/{visitId} | visits-get |
 | PUT /owners/{ownerId}/pets/{petId}/visits/{visitId} | visits-update |
 | DELETE /owners/{ownerId}/pets/{petId}/visits/{visitId} | visits-delete |
+
+### Vets
+
+| Endpoint | Função |
+|----------|--------|
+| GET /vets | vets-list |
+| GET /vets/{vetId} | vets-get |
 
 ## Padrões Arquiteturais
 

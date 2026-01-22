@@ -180,6 +180,34 @@ functions:
       - httpApi:
           path: /owners/{ownerId}/pets/{petId}/visits/{visitId}
           method: delete
+
+  vets-list:
+    handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+    description: List Vets (GET /vets)
+    package:
+      artifact: ../functions/vets-list/target/vets-list.jar
+    snapStart: true
+    environment:
+      MAIN_CLASS: com.example.petclinic.functions.vets.list.VetServiceConfiguration
+      SPRING_CLOUD_FUNCTION_DEFINITION: listVetsFunction
+    events:
+      - httpApi:
+          path: /vets
+          method: get
+
+  vets-get:
+    handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+    description: Get Vet (GET /vets/{vetId})
+    package:
+      artifact: ../functions/vets-get/target/vets-get.jar
+    snapStart: true
+    environment:
+      MAIN_CLASS: com.example.petclinic.functions.vets.get.VetServiceConfiguration
+      SPRING_CLOUD_FUNCTION_DEFINITION: getVetFunction
+    events:
+      - httpApi:
+          path: /vets/{vetId}
+          method: get
   # 1) CloudWatch Dashboard
   - ${file(./cloudwatch-dash.yml)}
 

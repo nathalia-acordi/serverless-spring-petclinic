@@ -24,7 +24,9 @@
         <module>functions/visits-get</module>
         <module>functions/visits-update</module>
         <module>functions/visits-delete</module>
-        <!-- Future: functions/pets-*, functions/vets-*, functions/specialties-* -->
+        <module>functions/vets-list</module>
+        <module>functions/vets-get</module>
+        <!-- Future: functions/pets-*, functions/specialties-* -->
     </modules>
 
     <properties>
